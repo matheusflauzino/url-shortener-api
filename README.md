@@ -25,6 +25,24 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Requisitos do Encurtador de URL
+
+### 1. Como eu entendo o problema
+
+Precisamos construir um serviço de encurtamento de URLs. O usuário fornece uma URL longa e o sistema devolve uma versão curta. Quando alguém acessa a URL curta, o sistema deve redirecionar para a original. A solução precisa evitar colisões (cada URL curta deve ser única) e suportar alto volume de geração e acesso. Além disso, queremos uma arquitetura escalável e resiliente.
+
+### 2. Volume esperado
+
+- **Geração de URLs curtas:** estimamos centenas de milhares por dia (cerca de 200 mil/dia, com picos maiores).
+- **Acessos:** ordens de grandeza maiores. Podemos ter picos de dezenas de milhares de requisições por segundo.
+- **Retenção:** URLs encurtadas podem permanecer ativas por anos, exigindo armazenamento persistente com replicação e sharding.
+
+### 3. Endpoints da API (visão inicial)
+
+- `POST /shorten` – recebe `{ "url": "https://exemplo.com" }` e devolve `{ "shortUrl": "https://sho.rt/abc123" }`.
+- `GET /:code` – redireciona para a URL original.
+- (Opcional) `GET /info/:code` – retorna detalhes como contagem de acessos e data de criação.
+
 ## Project setup
 
 ```bash
