@@ -26,4 +26,12 @@ describe('AppController (e2e)', () => {
   it('/health (GET)', () => {
     return request(app.getHttpServer()).get('/health').expect(200).expect('OK');
   });
+
+  it('/shorten (POST)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/shorten')
+      .send({ url: 'https://example.com' })
+      .expect(201);
+    expect(response.body).toHaveProperty('shortUrl');
+  });
 });

@@ -25,4 +25,12 @@ describe('AppController', () => {
       expect(appController.getHealth()).toBe('OK');
     });
   });
+
+  describe('shorten', () => {
+    it('should return a short url', () => {
+      const result = appController.shorten('https://example.com');
+      expect(result.shortUrl).toContain('http://localhost:3000/');
+      expect(result.shortUrl.split('/').pop()!.length).toBe(6);
+    });
+  });
 });
