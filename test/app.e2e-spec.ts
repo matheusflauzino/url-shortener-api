@@ -6,6 +6,18 @@ import { INestApplication } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { DataSource } from 'typeorm';
 import * as request from 'supertest';
+
+// ensure environment variables are set before loading the DataSource
+if (!process.env.MONGO_URL) {
+  process.env.MONGO_URL = 'mongodb://localhost/url-shortener-test';
+}
+if (!process.env.MYSQL_HOST) {
+  process.env.MYSQL_HOST = 'localhost';
+  process.env.MYSQL_USER = 'root';
+  process.env.MYSQL_PASSWORD = 'root';
+  process.env.MYSQL_DB = 'url_shortener_test';
+}
+
 import { AppDataSource } from '../data-source';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
@@ -66,6 +78,7 @@ describe('AppController (e2e)', () => {
         const repository = dataSource.getRepository(entity.name);
         await repository.clear();
       }
+      await dataSource.destroy();
     }
     await app.close();
   });
