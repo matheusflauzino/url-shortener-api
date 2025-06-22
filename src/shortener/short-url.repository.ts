@@ -7,7 +7,7 @@ import { ShortUrl, ShortUrlDocument } from './entities/short-url.schema';
 export class ShortUrlRepository {
   constructor(@InjectModel(ShortUrl.name) private model: Model<ShortUrlDocument>) {}
 
-  async create(originalUrl: string, shortCode: string): Promise<ShortUrl> {
+  async create(originalUrl: string, shortCode: string): Promise<ShortUrlDocument> {
     const created = await this.model.create({
       originalUrl,
       shortCode,
@@ -17,8 +17,8 @@ export class ShortUrlRepository {
     return created;
   }
 
-  async findByCode(shortCode: string): Promise<ShortUrl | undefined> {
-    return this.model.findOne({ shortCode }).exec() ?? undefined;
+  async findByCode(shortCode: string): Promise<ShortUrlDocument | null> {
+    return this.model.findOne({ shortCode }).exec();
   }
 
   async incrementAccess(shortCode: string): Promise<void> {
