@@ -1,31 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { ShortUrl } from './entities/short-url.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { ShortUrl, ShortUrlDocument } from './entities/short-url.schema';
 
 @Injectable()
 export class ShortUrlRepository {
-  private urls = new Map<string, ShortUrl>();
-  private idCounter = 0;
+  constructor(@InjectModel(ShortUrl.name) private model: Model<ShortUrlDocument>) {}
 
-  create(originalUrl: string, shortCode: string): ShortUrl {
-    const shortUrl = new ShortUrl({
-      id: (++this.idCounter).toString(),
+  async create(originalUrl: string, shortCode: string): Promise<ShortUrl> {
+    const created = await this.model.create({
       originalUrl,
       shortCode,
       createdAt: new Date(),
       accessCount: 0,
     });
-    this.urls.set(shortCode, shortUrl);
-    return shortUrl;
+    return created;
   }
 
-  findByCode(shortCode: string): ShortUrl | undefined {
-    return this.urls.get(shortCode);
+  async findByCode(shortCode: string): Promise<ShortUrl | undefined> {
+    return this.model.findOne({ shortCode }).exec() ?? undefined;
   }
 
-  incrementAccess(shortCode: string): void {
-    const url = this.urls.get(shortCode);
-    if (url) {
-      url.accessCount = (url.accessCount ?? 0) + 1;
-    }
+  async incrementAccess(shortCode: string): Promise<void> {
+    await this.model.updateOne({ shortCode }, { $inc: { accessCount: 1 } }).exec();
   }
 }
