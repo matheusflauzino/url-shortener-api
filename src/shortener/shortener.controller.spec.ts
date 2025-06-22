@@ -5,7 +5,7 @@ import { ShortenerController } from './shortener.controller';
 import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 class FakeShortUrlRepository {
   private store = new Map<string, any>();
@@ -47,6 +47,9 @@ describe('ShortenerController', () => {
       const result = await controller.shorten('https://example.com');
       expect(result.shortUrl).toContain('http://localhost:3000/');
       expect(result.shortUrl.split('/').pop()!.length).toBe(6);
+    });
+    it('should throw BadRequestException for invalid url', async () => {
+      await expect(controller.shorten('invalid-url')).rejects.toThrow(BadRequestException);
     });
   });
 

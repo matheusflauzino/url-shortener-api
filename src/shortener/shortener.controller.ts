@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Res, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
+import { UrlValidationPipe } from '../common/pipes/url-validation.pipe';
 import { ShortenerService } from './shortener.service';
 
 @Controller()
@@ -7,7 +8,7 @@ export class ShortenerController {
   constructor(private readonly shortenerService: ShortenerService) {}
 
   @Post('shorten')
-  async shorten(@Body('url') url: string): Promise<{ shortUrl: string }> {
+  async shorten(@Body('url', new UrlValidationPipe()) url: string): Promise<{ shortUrl: string }> {
     const code = await this.shortenerService.shorten(url);
     const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000';
     return { shortUrl: `${baseUrl}/${code}` };

@@ -56,6 +56,12 @@ describe('AppController (e2e)', () => {
       .expect(201);
     expect(response.body).toHaveProperty('shortUrl');
   });
+    it('/invalid url (POST)', async () => {
+      await request(app.getHttpServer())
+        .post('/shorten')
+        .send({ url: 'invalid-url' })
+        .expect(400);
+    });
 
   it('/:code (GET)', async () => {
     const short = await request(app.getHttpServer())
