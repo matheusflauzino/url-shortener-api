@@ -17,7 +17,7 @@ import {
 import { Response } from 'express';
 import { UrlValidationPipe } from '../common/pipes/url-validation.pipe';
 import { ShortenerService } from './shortener.service';
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode';
 
 @ApiTags('shortener')
 @Controller()
