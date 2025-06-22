@@ -17,6 +17,14 @@ O usuário envia uma URL longa e recebe uma versão curta. Ao acessar a URL curt
 | `GET /:code/qrcode`| Retorna um QR Code que aponta para a URL encurtada. |
 | `GET /metrics`     | Exibe métricas no padrão Prometheus.                |
 
+## Documentação
+
+A especificação OpenAPI está disponível em [docs/swagger.yml](docs/swagger.yml).
+Ao executar o projeto, o Swagger UI pode ser acessado em `http://localhost:3000/api/docs`.
+
+Para testar rapidamente os endpoints, utilize a coleção do Postman localizada em
+[docs/postman_collection.json](docs/postman_collection.json).
+
 ## Variáveis de Ambiente
 
 - `PORT` – porta do servidor (padrão: `3000`).
