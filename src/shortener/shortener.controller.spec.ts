@@ -8,11 +8,13 @@ import { ShortUrlRepository } from './short-url.repository';
 import { CacheService } from '../common/cache.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
+
 interface FakeShortUrl {
   originalUrl: string;
   shortCode: string;
   createdAt: Date;
   expiresAt?: Date;
+
   accessCount: number;
 }
 
@@ -25,7 +27,6 @@ class FakeShortUrlRepository {
       shortCode,
       createdAt: new Date(),
       accessCount: 0,
-      ...(expiresAt ? { expiresAt } : {}),
     };
     this.store.set(shortCode, item);
     return Promise.resolve(item);
