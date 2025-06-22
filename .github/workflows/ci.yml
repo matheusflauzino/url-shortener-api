@@ -28,6 +28,18 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+      mysql:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: url_shortener_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
     - uses: actions/checkout@v4
@@ -42,6 +54,10 @@ jobs:
       env:
         MONGO_URL: mongodb://localhost:27017/url-shortener-test
         REDIS_URL: redis://localhost:6379
+        MYSQL_HOST: localhost
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+        MYSQL_DB: url_shortener_test
 
     - name: Run unit tests
       run: npm run test --if-present
@@ -51,3 +67,7 @@ jobs:
       env:
         MONGO_URL: mongodb://localhost:27017/url-shortener-test
         REDIS_URL: redis://localhost:6379
+        MYSQL_HOST: localhost
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+        MYSQL_DB: url_shortener_test

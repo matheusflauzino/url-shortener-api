@@ -7,6 +7,7 @@ import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
 import { CacheService } from '../common/cache.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CacheService } from '../common/cache.service';
         })(),
       },
     ]),
+    AuthModule,
   ],
   controllers: [ShortenerController],
   providers: [

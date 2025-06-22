@@ -11,13 +11,13 @@ export class ShortenerService {
     private readonly cache: CacheService,
   ) {}
 
-  async shorten(url: string): Promise<string> {
+  async shorten(url: string, userId: number): Promise<string> {
     this.validateUrl(url);
     let code = this.shortCode.generate();
     while (await this.repository.findByCode(code)) {
       code = this.shortCode.generate();
     }
-    await this.repository.create(url, code);
+    await this.repository.create(url, code, userId);
     await this.cache.set(code, url);
     return code;
   }

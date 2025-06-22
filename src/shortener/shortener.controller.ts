@@ -16,6 +16,8 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { UrlValidationPipe } from '../common/pipes/url-validation.pipe';
 import { ShortenerService } from './shortener.service';
@@ -30,6 +32,7 @@ export class ShortenerController {
     private readonly logger: PinoLogger,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('shorten')
   @ApiOperation({ summary: 'Create a shortened URL' })
   @ApiBody({
@@ -47,7 +50,7 @@ export class ShortenerController {
     @Body('url', new UrlValidationPipe()) url: string,
     @Req() req: Request,
   ): Promise<{ shortUrl: string }> {
-    const code = await this.shortenerService.shorten(url);
+    const code = await this.shortenerService.shorten(url, (req as any).user.userId);
     const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000';
     this.logger.info(
       {
