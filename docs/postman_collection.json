@@ -1,0 +1,74 @@
+{
+  "info": {
+    "name": "URL Shortener API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Shorten URL",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"url\": \"https://example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/shorten",
+          "host": ["{{base_url}}"],
+          "path": ["shorten"]
+        }
+      },
+      "response": [
+        {
+          "name": "Created",
+          "originalRequest": {},
+          "status": "Created",
+          "code": 201,
+          "body": "{\n  \"shortUrl\": \"http://localhost:3000/abc123\"\n}"
+        },
+        {
+          "name": "Bad Request",
+          "originalRequest": {},
+          "status": "Bad Request",
+          "code": 400,
+          "body": "{\n  \"statusCode\": 400,\n  \"message\": \"Invalid URL\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get original URL",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/abc123",
+          "host": ["{{base_url}}"],
+          "path": ["abc123"]
+        }
+      },
+      "response": [
+        {
+          "name": "Redirect",
+          "originalRequest": {},
+          "status": "Found",
+          "code": 302,
+          "header": [
+            { "key": "Location", "value": "https://example.com" }
+          ]
+        },
+        {
+          "name": "Not Found",
+          "originalRequest": {},
+          "status": "Not Found",
+          "code": 404,
+          "body": "{\n  \"statusCode\": 404,\n  \"message\": \"URL not found\"\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000" }
+  ]
+}

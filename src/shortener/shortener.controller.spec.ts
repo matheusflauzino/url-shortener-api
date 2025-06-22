@@ -8,22 +8,35 @@ import { ShortUrlRepository } from './short-url.repository';
 import { CacheService } from '../common/cache.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
+interface ShortUrlItem {
+  originalUrl: string;
+  shortCode: string;
+  createdAt: Date;
+  accessCount: number;
+}
+
 class FakeShortUrlRepository {
-  private store = new Map<string, any>();
+  private store = new Map<string, ShortUrlItem>();
 
-  async create(originalUrl: string, shortCode: string) {
-    const item = { originalUrl, shortCode, createdAt: new Date(), accessCount: 0 };
+  async create(originalUrl: string, shortCode: string): Promise<ShortUrlItem> {
+    const item = {
+      originalUrl,
+      shortCode,
+      createdAt: new Date(),
+      accessCount: 0,
+    };
     this.store.set(shortCode, item);
-    return item;
+    return Promise.resolve(item);
   }
 
-  async findByCode(code: string) {
-    return this.store.get(code);
+  async findByCode(code: string): Promise<ShortUrlItem | undefined> {
+    return Promise.resolve(this.store.get(code));
   }
 
-  async incrementAccess(code: string) {
+  async incrementAccess(code: string): Promise<void> {
     const item = this.store.get(code);
     if (item) item.accessCount++;
+    return Promise.resolve();
   }
 }
 
@@ -56,7 +69,9 @@ describe('ShortenerController', () => {
       expect(result.shortUrl.split('/').pop()!.length).toBe(6);
     });
     it('should throw BadRequestException for invalid url', async () => {
-      await expect(controller.shorten('invalid-url')).rejects.toThrow(BadRequestException);
+      await expect(controller.shorten('invalid-url')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -72,7 +87,9 @@ describe('ShortenerController', () => {
 
     it('should throw NotFoundException for unknown code', async () => {
       const res = { redirect: jest.fn() } as any;
-      await expect(controller.redirect('unknown', res)).rejects.toThrow(NotFoundException);
+      await expect(controller.redirect('unknown', res)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
