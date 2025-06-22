@@ -31,7 +31,33 @@ npm install
 npm run start:dev
 ```
 
-A aplicação ficará disponível na porta definida pela variável `PORT`.
+## Run tests
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
+
+## Docker Compose
+
+Para executar o projeto utilizando Docker Compose, certifique-se de ter o Docker instalado e execute:
+
+```bash
+docker-compose up --build
+```
+
+Isso irá subir o aplicativo em `http://localhost:3000` bem como serviços do MongoDB e Redis utilizados pela aplicação.
+
+
+## Deployment
+
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
 ## Testes
 
