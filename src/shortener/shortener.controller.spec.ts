@@ -6,6 +6,7 @@ import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { CreateShortUrlDto } from './dto/create-short-url.dto';
 
 class FakeShortUrlRepository {
   private store = new Map<string, any>();
@@ -36,6 +37,15 @@ describe('ShortenerController', () => {
         ShortenerService,
         ShortCodeService,
         { provide: ShortUrlRepository, useClass: FakeShortUrlRepository },
+        {
+          provide: 'SHORTENER_REDIS',
+          useValue: {
+            emit: jest.fn(),
+            status: { subscribe: jest.fn() },
+            on: jest.fn(),
+            connect: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -44,18 +54,27 @@ describe('ShortenerController', () => {
 
   describe('shorten', () => {
     it('should return a short url', async () => {
-      const result = await controller.shorten('https://example.com');
+      const dto: CreateShortUrlDto = { url: 'https://example.com' };
+      const result = await controller.shorten(dto);
       expect(result.shortUrl).toContain('http://localhost:3000/');
       expect(result.shortUrl.split('/').pop()!.length).toBe(6);
     });
     it('should throw BadRequestException for invalid url', async () => {
-      await expect(controller.shorten('invalid-url')).rejects.toThrow(BadRequestException);
+      const dto: CreateShortUrlDto = { url: 'invalid-url' };
+      const pipe = new (require('@nestjs/common').ValidationPipe)({ whitelist: true });
+      await expect(
+        pipe.transform(dto, {
+          type: 'body',
+          metatype: CreateShortUrlDto,
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('redirect', () => {
     it('should redirect to original url', async () => {
-      const result = await controller.shorten('https://example.com');
+      const dto: CreateShortUrlDto = { url: 'https://example.com' };
+      const result = await controller.shorten(dto);
       const code = result.shortUrl.split('/').pop()!;
       const redirectMock = jest.fn();
       const res = { redirect: redirectMock } as any;

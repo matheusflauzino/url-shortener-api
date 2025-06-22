@@ -6,6 +6,7 @@ import { ShortenerController } from './shortener.controller';
 import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
+import { ShortenerListener } from './shortener.listener';
 
 @Module({
   imports: [
@@ -22,12 +23,13 @@ import { ShortUrlRepository } from './short-url.repository';
             port: port ? parseInt(port, 10) : 6379,
             retryAttempts: 3,
             retryDelay: 1000,
+            wildcards: true,
           };
         })(),
       },
     ]),
   ],
-  controllers: [ShortenerController],
+  controllers: [ShortenerController, ShortenerListener],
   providers: [ShortenerService, ShortCodeService, ShortUrlRepository],
 })
 export class ShortenerModule {}
