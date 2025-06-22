@@ -71,11 +71,8 @@ export class CacheService implements OnModuleDestroy {
     if (this.client) {
       try {
         await this.client.quit();
-        // ignore errors on shutdown
       } catch {
-        // eslint-disable-next-line no-empty
-        {
-        }
+        // ignore connection close errors
       }
     }
   }

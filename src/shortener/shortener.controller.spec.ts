@@ -8,20 +8,23 @@ import { ShortUrlRepository } from './short-url.repository';
 import { CacheService } from '../common/cache.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
-interface ShortUrlItem {
+
+interface FakeShortUrl {
   originalUrl: string;
   shortCode: string;
   createdAt: Date;
+  expiresAt?: Date;
+
   accessCount: number;
 }
 
-class FakeShortUrlRepository {
-  private store = new Map<string, ShortUrlItem>();
+  let testingModule: TestingModule;
+    testingModule = await Test.createTestingModule({
 
-  async create(originalUrl: string, shortCode: string): Promise<ShortUrlItem> {
-    const item = {
-      originalUrl,
-      shortCode,
+      controller: testingModule.get<ShortenerController>(ShortenerController),
+      repository: testingModule.get<ShortUrlRepository>(ShortUrlRepository),
+    if (testingModule) {
+      await testingModule.close();
       createdAt: new Date(),
       accessCount: 0,
     };
@@ -29,22 +32,27 @@ class FakeShortUrlRepository {
     return Promise.resolve(item);
   }
 
-  async findByCode(code: string): Promise<ShortUrlItem | undefined> {
-    return Promise.resolve(this.store.get(code));
-  }
+    return {
+      controller: module.get<ShortenerController>(ShortenerController),
+      repository: module.get<ShortUrlRepository>(ShortUrlRepository),
+    };
+      const { controller } = await createController();
+      const { controller } = await createController();
 
-  async incrementAccess(code: string): Promise<void> {
-    const item = this.store.get(code);
-    if (item) item.accessCount++;
-    return Promise.resolve();
-  }
-}
+      const { controller } = await createController();
+      const { controller } = await createController();
+      const { controller, repository } = await createController();
+      const code = 'expired';
+      await repository.create(
+        'https://example.com',
+        code,
+        new Date(Date.now() - 60_000),
+      );
 
 describe('ShortenerController', () => {
-  let controller: ShortenerController;
   let module: TestingModule;
 
-  beforeEach(async () => {
+  const createController = async () => {
     module = await Test.createTestingModule({
       controllers: [ShortenerController],
       providers: [
@@ -55,20 +63,25 @@ describe('ShortenerController', () => {
       ],
     }).compile();
 
-    controller = module.get<ShortenerController>(ShortenerController);
-  });
+    return module.get<ShortenerController>(ShortenerController);
+  };
 
   afterEach(async () => {
-    await module.close();
+    if (module) {
+      await module.close();
+    }
+    delete process.env.URL_TTL_DAYS;
   });
 
   describe('shorten', () => {
     it('should return a short url', async () => {
+      const controller = await createController();
       const result = await controller.shorten('https://example.com');
       expect(result.shortUrl).toContain('http://localhost:3000/');
       expect(result.shortUrl.split('/').pop()!.length).toBe(6);
     });
     it('should throw BadRequestException for invalid url', async () => {
+      const controller = await createController();
       await expect(controller.shorten('invalid-url')).rejects.toThrow(
         BadRequestException,
       );
@@ -77,6 +90,7 @@ describe('ShortenerController', () => {
 
   describe('redirect', () => {
     it('should redirect to original url', async () => {
+      const controller = await createController();
       const result = await controller.shorten('https://example.com');
       const code = result.shortUrl.split('/').pop()!;
       const redirectMock = jest.fn();
@@ -86,8 +100,20 @@ describe('ShortenerController', () => {
     });
 
     it('should throw NotFoundException for unknown code', async () => {
+      const controller = await createController();
       const res = { redirect: jest.fn() } as any;
       await expect(controller.redirect('unknown', res)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw NotFoundException for expired code', async () => {
+      process.env.URL_TTL_DAYS = '0';
+      const controller = await createController();
+      const result = await controller.shorten('https://example.com');
+      const code = result.shortUrl.split('/').pop()!;
+      const res = { redirect: jest.fn() } as any;
+      await expect(controller.redirect(code, res)).rejects.toThrow(
         NotFoundException,
       );
     });
