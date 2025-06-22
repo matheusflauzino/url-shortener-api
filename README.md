@@ -37,6 +37,17 @@ npm run start:dev
 # unit tests
 $ npm run test
 
+## Configuration
+
+The application can be customized through environment variables:
+
+- `BASE_URL`: base URL used when generating short links. Defaults to
+  `http://localhost:3000`.
+- `MONGO_URL`: MongoDB connection string for persistence. Defaults to
+  `mongodb://localhost/nest`.
+- `URL_TTL_DAYS`: number of days before a short URL expires. If unset, links
+  never expire. A value of `0` makes new links expire immediately.
+
 # e2e tests
 $ npm run test:e2e
 
