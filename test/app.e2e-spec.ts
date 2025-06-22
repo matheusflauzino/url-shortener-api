@@ -34,4 +34,20 @@ describe('AppController (e2e)', () => {
       .expect(201);
     expect(response.body).toHaveProperty('shortUrl');
   });
+
+  it('/:code (GET)', async () => {
+    const short = await request(app.getHttpServer())
+      .post('/shorten')
+      .send({ url: 'https://example.com' })
+      .expect(201);
+    const code = short.body.shortUrl.split('/').pop();
+    await request(app.getHttpServer())
+      .get(`/${code}`)
+      .expect(302)
+      .expect('Location', 'https://example.com');
+  });
+
+  it('/unknown code (GET)', () => {
+    return request(app.getHttpServer()).get('/unknown').expect(404);
+  });
 });

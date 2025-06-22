@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Param,
+  Res,
+  NotFoundException,
+} from '@nestjs/common';
+import { Response } from 'express';
 import { AppService } from './app.service';
 
 @Controller()
@@ -20,5 +29,14 @@ export class AppController {
     const code = this.appService.shorten(url);
     const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000';
     return { shortUrl: `${baseUrl}/${code}` };
+  }
+
+  @Get(':code')
+  redirect(@Param('code') code: string, @Res() res: Response) {
+    const url = this.appService.getUrl(code);
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
+    return res.redirect(url);
   }
 }
