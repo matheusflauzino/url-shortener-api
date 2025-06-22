@@ -195,6 +195,17 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Docker Compose
+
+Para executar o projeto utilizando Docker Compose, certifique-se de ter o Docker instalado e execute:
+
+```bash
+docker-compose up --build
+```
+
+Isso irá subir o aplicativo em `http://localhost:3000` bem como serviços do MongoDB e Redis utilizados pela aplicação.
+
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
