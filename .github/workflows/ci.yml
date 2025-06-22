@@ -29,10 +29,10 @@ jobs:
           --health-timeout=5s
           --health-retries=5
       mysql:
-        image: mariadb:11
+        image: mysql:8
         env:
-          MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: url_shortener_test
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: url_shortener_test
         ports:
           - 3306:3306
         options: >-
