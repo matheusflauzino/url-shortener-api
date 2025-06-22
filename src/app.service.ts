@@ -22,6 +22,10 @@ export class AppService {
     return code;
   }
 
+  getUrl(code: string): string | undefined {
+    return this.urlMap.get(code);
+  }
+
   private validateUrl(url: string): void {
     try {
       new URL(url);
