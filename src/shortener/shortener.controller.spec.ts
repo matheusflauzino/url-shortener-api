@@ -32,16 +32,22 @@ class FakeShortUrlRepository {
     return Promise.resolve(item);
   }
 
-  findByCode(code: string) {
-    return Promise.resolve(this.store.get(code) ?? null);
-  }
+    return {
+      controller: module.get<ShortenerController>(ShortenerController),
+      repository: module.get<ShortUrlRepository>(ShortUrlRepository),
+    };
+      const { controller } = await createController();
+      const { controller } = await createController();
 
-  incrementAccess(code: string) {
-    const item = this.store.get(code);
-    if (item) item.accessCount++;
-    return Promise.resolve();
-  }
-}
+      const { controller } = await createController();
+      const { controller } = await createController();
+      const { controller, repository } = await createController();
+      const code = 'expired';
+      await repository.create(
+        'https://example.com',
+        code,
+        new Date(Date.now() - 60_000),
+      );
 
 describe('ShortenerController', () => {
   let module: TestingModule;
