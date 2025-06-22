@@ -5,6 +5,7 @@ import { ShortenerController } from './shortener.controller';
 import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
+import { CacheService } from '../common/cache.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 class FakeShortUrlRepository {
@@ -28,18 +29,24 @@ class FakeShortUrlRepository {
 
 describe('ShortenerController', () => {
   let controller: ShortenerController;
+  let module: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       controllers: [ShortenerController],
       providers: [
         ShortenerService,
         ShortCodeService,
         { provide: ShortUrlRepository, useClass: FakeShortUrlRepository },
+        CacheService,
       ],
     }).compile();
 
     controller = module.get<ShortenerController>(ShortenerController);
+  });
+
+  afterEach(async () => {
+    await module.close();
   });
 
   describe('shorten', () => {
