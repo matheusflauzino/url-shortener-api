@@ -32,7 +32,7 @@ export class ShortenerService {
             Date.now() +
               (this.ttlDays > 0
                 ? this.ttlDays * 24 * 60 * 60 * 1000
-                : -1),
+                : -60 * 1000),
           )
         : undefined;
     await this.repository.create(url, code, expiresAt);
