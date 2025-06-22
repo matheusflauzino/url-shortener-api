@@ -7,12 +7,17 @@ import { ShortUrl, ShortUrlDocument } from './entities/short-url.schema';
 export class ShortUrlRepository {
   constructor(@InjectModel(ShortUrl.name) private model: Model<ShortUrlDocument>) {}
 
-  async create(originalUrl: string, shortCode: string): Promise<ShortUrlDocument> {
+  async create(
+    originalUrl: string,
+    shortCode: string,
+    userId: number,
+  ): Promise<ShortUrlDocument> {
     const created = await this.model.create({
       originalUrl,
       shortCode,
       createdAt: new Date(),
       accessCount: 0,
+      userId,
     });
     return created;
   }

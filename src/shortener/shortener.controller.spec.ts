@@ -14,17 +14,23 @@ interface ShortUrlItem {
   shortCode: string;
   createdAt: Date;
   accessCount: number;
+  userId: number;
 }
 
 class FakeShortUrlRepository {
   private store = new Map<string, ShortUrlItem>();
 
-  async create(originalUrl: string, shortCode: string): Promise<ShortUrlItem> {
+  async create(
+    originalUrl: string,
+    shortCode: string,
+    userId: number,
+  ): Promise<ShortUrlItem> {
     const item = {
       originalUrl,
       shortCode,
       createdAt: new Date(),
       accessCount: 0,
+      userId,
     };
     this.store.set(shortCode, item);
     return Promise.resolve(item);
@@ -72,6 +78,7 @@ describe('ShortenerController', () => {
       const mockReq = {
         ip: '127.0.0.1',
         headers: { 'user-agent': 'jest' },
+        user: { userId: 1 },
       } as any;
       const result = await controller.shorten('https://example.com', mockReq);
       expect(result.shortUrl).toContain('http://localhost:3000/');
@@ -81,6 +88,7 @@ describe('ShortenerController', () => {
       const mockReq = {
         ip: '127.0.0.1',
         headers: { 'user-agent': 'jest' },
+        user: { userId: 1 },
       } as any;
       await expect(controller.shorten('invalid-url', mockReq)).rejects.toThrow(
         BadRequestException,
@@ -93,6 +101,7 @@ describe('ShortenerController', () => {
       const mockReq = {
         ip: '127.0.0.1',
         headers: { 'user-agent': 'jest' },
+        user: { userId: 1 },
       } as any;
       const result = await controller.shorten('https://example.com', mockReq);
       const code = result.shortUrl.split('/').pop()!;
@@ -107,6 +116,7 @@ describe('ShortenerController', () => {
       const mockReq = {
         ip: '127.0.0.1',
         headers: { 'user-agent': 'jest' },
+        user: { userId: 1 },
       } as any;
       await expect(
         controller.redirect('unknown', res, mockReq),

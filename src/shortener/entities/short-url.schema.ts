@@ -14,6 +14,9 @@ export class ShortUrl {
 
   @Prop({ default: 0 })
   accessCount?: number;
+
+  @Prop()
+  userId: number;
 }
 
 export type ShortUrlDocument = ShortUrl & Document;
