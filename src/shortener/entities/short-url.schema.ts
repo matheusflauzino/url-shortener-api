@@ -12,8 +12,8 @@ export class ShortUrl {
   @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ required: true })
-  expiresAt: Date;
+  @Prop()
+  expiresAt?: Date;
 
   @Prop({ default: 0 })
   accessCount?: number;

@@ -8,28 +8,37 @@ import { ShortUrlRepository } from './short-url.repository';
 import { CacheService } from '../common/cache.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
-class FakeShortUrlRepository {
-  private store = new Map<string, any>();
+interface FakeShortUrl {
+  originalUrl: string;
+  shortCode: string;
+  createdAt: Date;
+  expiresAt?: Date;
+  accessCount: number;
+}
 
-  async create(originalUrl: string, shortCode: string, expiresAt: Date) {
-    const item = {
+class FakeShortUrlRepository {
+  private store = new Map<string, FakeShortUrl>();
+
+  create(originalUrl: string, shortCode: string, expiresAt?: Date) {
+    const item: FakeShortUrl = {
       originalUrl,
       shortCode,
       createdAt: new Date(),
-      expiresAt,
       accessCount: 0,
+      ...(expiresAt ? { expiresAt } : {}),
     };
     this.store.set(shortCode, item);
-    return item;
+    return Promise.resolve(item);
   }
 
-  async findByCode(code: string) {
-    return this.store.get(code);
+  findByCode(code: string) {
+    return Promise.resolve(this.store.get(code) ?? null);
   }
 
-  async incrementAccess(code: string) {
+  incrementAccess(code: string) {
     const item = this.store.get(code);
     if (item) item.accessCount++;
+    return Promise.resolve();
   }
 }
 
@@ -66,7 +75,9 @@ describe('ShortenerController', () => {
     });
     it('should throw BadRequestException for invalid url', async () => {
       const controller = await createController();
-      await expect(controller.shorten('invalid-url')).rejects.toThrow(BadRequestException);
+      await expect(controller.shorten('invalid-url')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -84,7 +95,9 @@ describe('ShortenerController', () => {
     it('should throw NotFoundException for unknown code', async () => {
       const controller = await createController();
       const res = { redirect: jest.fn() } as any;
-      await expect(controller.redirect('unknown', res)).rejects.toThrow(NotFoundException);
+      await expect(controller.redirect('unknown', res)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw NotFoundException for expired code', async () => {
@@ -93,7 +106,9 @@ describe('ShortenerController', () => {
       const result = await controller.shorten('https://example.com');
       const code = result.shortUrl.split('/').pop()!;
       const res = { redirect: jest.fn() } as any;
-      await expect(controller.redirect(code, res)).rejects.toThrow(NotFoundException);
+      await expect(controller.redirect(code, res)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

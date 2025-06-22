@@ -71,7 +71,9 @@ export class CacheService implements OnModuleDestroy {
     if (this.client) {
       try {
         await this.client.quit();
-      } catch {}
+      } catch {
+        // ignore connection close errors
+      }
     }
   }
 }
