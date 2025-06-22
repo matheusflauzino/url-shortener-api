@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Transport } from '@nestjs/microservices';
 import mongoose from 'mongoose';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
@@ -27,6 +28,11 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.connectMicroservice({
+      transport: Transport.REDIS,
+      options: { url: process.env.REDIS_URL ?? 'redis://localhost:6379' },
+    });
+    await app.startAllMicroservices();
     await app.init();
   });
 
@@ -56,12 +62,12 @@ describe('AppController (e2e)', () => {
       .expect(201);
     expect(response.body).toHaveProperty('shortUrl');
   });
-    it('/invalid url (POST)', async () => {
-      await request(app.getHttpServer())
-        .post('/shorten')
-        .send({ url: 'invalid-url' })
-        .expect(400);
-    });
+  it('/invalid url (POST)', async () => {
+    await request(app.getHttpServer())
+      .post('/shorten')
+      .send({ url: 'invalid-url' })
+      .expect(400);
+  });
 
   it('/:code (GET)', async () => {
     const short = await request(app.getHttpServer())

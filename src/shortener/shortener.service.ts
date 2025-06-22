@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
 
@@ -10,7 +10,6 @@ export class ShortenerService {
   ) {}
 
   async shorten(url: string): Promise<string> {
-    this.validateUrl(url);
     let code = this.shortCode.generate();
     while (await this.repository.findByCode(code)) {
       code = this.shortCode.generate();
@@ -26,14 +25,5 @@ export class ShortenerService {
       return short.originalUrl;
     }
     return undefined;
-  }
-
-  private validateUrl(url: string): void {
-    try {
-      // eslint-disable-next-line no-new
-      new URL(url);
-    } catch {
-      throw new BadRequestException('Invalid URL');
-    }
   }
 }
