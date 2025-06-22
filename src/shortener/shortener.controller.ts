@@ -19,6 +19,7 @@ import { Request, Response } from 'express';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { UrlValidationPipe } from '../common/pipes/url-validation.pipe';
 import { ShortenerService } from './shortener.service';
+import * as QRCode from 'qrcode';
 
 @ApiTags('shortener')
 @Controller()
@@ -89,5 +90,23 @@ export class ShortenerController {
       'redirect',
     );
     return res;
+  }
+
+  @Get(':code/qrcode')
+  @ApiOperation({ summary: 'Get QR Code for short URL' })
+  @ApiParam({ name: 'code', description: 'Generated short code' })
+  @ApiResponse({ status: 200, description: 'QR Code image' })
+  @ApiResponse({ status: 404, description: 'URL not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async qrcode(@Param('code') code: string, @Res() res: Response) {
+    const url = await this.shortenerService.getUrl(code);
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
+    const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000';
+    const shortUrl = `${baseUrl}/${code}`;
+    const svg = await QRCode.toString(shortUrl, { type: 'svg' });
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(svg);
   }
 }
