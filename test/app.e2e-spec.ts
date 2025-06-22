@@ -31,7 +31,10 @@ describe('AppController (e2e)', () => {
   });
 
   afterEach(async () => {
-    await mongoose.connection.db.dropDatabase();
+    const db = mongoose.connection.db;
+    if (db) {
+      await db.dropDatabase();
+    }
     await app.close();
   });
 
