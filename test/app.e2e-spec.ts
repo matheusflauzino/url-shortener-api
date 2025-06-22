@@ -56,12 +56,12 @@ describe('AppController (e2e)', () => {
       .expect(201);
     expect(response.body).toHaveProperty('shortUrl');
   });
-    it('/invalid url (POST)', async () => {
-      await request(app.getHttpServer())
-        .post('/shorten')
-        .send({ url: 'invalid-url' })
-        .expect(400);
-    });
+  it('/invalid url (POST)', async () => {
+    await request(app.getHttpServer())
+      .post('/shorten')
+      .send({ url: 'invalid-url' })
+      .expect(400);
+  });
 
   it('/:code (GET)', async () => {
     const short = await request(app.getHttpServer())
@@ -75,14 +75,24 @@ describe('AppController (e2e)', () => {
       .expect('Location', 'https://example.com');
   });
 
+  it('/:code/qrcode (GET)', async () => {
+    const short = await request(app.getHttpServer())
+      .post('/shorten')
+      .send({ url: 'https://example.com' })
+      .expect(201);
+    const code = short.body.shortUrl.split('/').pop();
+    const res = await request(app.getHttpServer())
+      .get(`/${code}/qrcode`)
+      .expect(200);
+    expect(res.headers['content-type']).toContain('image/svg+xml');
+  });
+
   it('/unknown code (GET)', () => {
     return request(app.getHttpServer()).get('/unknown').expect(404);
   });
 
   it('/metrics (GET)', async () => {
-    const res = await request(app.getHttpServer())
-      .get('/metrics')
-      .expect(200);
+    const res = await request(app.getHttpServer()).get('/metrics').expect(200);
     expect(res.text).toContain('# HELP');
   });
 });

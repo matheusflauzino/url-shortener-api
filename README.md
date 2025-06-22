@@ -14,6 +14,7 @@ O usuário envia uma URL longa e recebe uma versão curta. Ao acessar a URL curt
 | `GET /health`      | Endpoint de verificação de status.                  |
 | `POST /shorten`    | Recebe `{ "url": "https://exemplo.com" }` e retorna a URL encurtada. |
 | `GET /:code`       | Redireciona para a URL original associada ao código.|
+| `GET /:code/qrcode`| Retorna um QR Code que aponta para a URL encurtada. |
 | `GET /metrics`     | Exibe métricas no padrão Prometheus.                |
 
 ## Variáveis de Ambiente
