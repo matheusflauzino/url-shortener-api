@@ -21,41 +21,43 @@ describe('AppController (e2e)', () => {
     await mongoose.disconnect();
   });
 
-  beforeEach(async () => {
+  const createApp = async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
-  });
+  };
 
-  afterEach(async () => {
+  const closeApp = async () => {
     const db = mongoose.connection.db;
     if (db) {
       await db.dropDatabase();
     }
     await app.close();
-  });
+  };
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
+  const defaultTests = () => {
+    it('/ (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/')
+        .expect(200)
+        .expect('Hello World!');
+    });
 
-  it('/health (GET)', () => {
-    return request(app.getHttpServer()).get('/health').expect(200).expect('OK');
-  });
+    it('/health (GET)', () => {
+      return request(app.getHttpServer()).get('/health').expect(200).expect('OK');
+    });
 
-  it('/shorten (POST)', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/shorten')
-      .send({ url: 'https://example.com' })
-      .expect(201);
-    expect(response.body).toHaveProperty('shortUrl');
-  });
+    it('/shorten (POST)', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/shorten')
+        .send({ url: 'https://example.com' })
+        .expect(201);
+      expect(response.body).toHaveProperty('shortUrl');
+    });
+
     it('/invalid url (POST)', async () => {
       await request(app.getHttpServer())
         .post('/shorten')
@@ -63,26 +65,53 @@ describe('AppController (e2e)', () => {
         .expect(400);
     });
 
-  it('/:code (GET)', async () => {
-    const short = await request(app.getHttpServer())
-      .post('/shorten')
-      .send({ url: 'https://example.com' })
-      .expect(201);
-    const code = short.body.shortUrl.split('/').pop();
-    await request(app.getHttpServer())
-      .get(`/${code}`)
-      .expect(302)
-      .expect('Location', 'https://example.com');
+    it('/:code (GET)', async () => {
+      const short = await request(app.getHttpServer())
+        .post('/shorten')
+        .send({ url: 'https://example.com' })
+        .expect(201);
+      const code = short.body.shortUrl.split('/').pop();
+      await request(app.getHttpServer())
+        .get(`/${code}`)
+        .expect(302)
+        .expect('Location', 'https://example.com');
+    });
+
+    it('/unknown code (GET)', () => {
+      return request(app.getHttpServer()).get('/unknown').expect(404);
+    });
+
+    it('/metrics (GET)', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/metrics')
+        .expect(200);
+      expect(res.text).toContain('# HELP');
+    });
+  };
+
+  describe('default ttl', () => {
+    beforeEach(createApp);
+    afterEach(closeApp);
+    defaultTests();
   });
 
-  it('/unknown code (GET)', () => {
-    return request(app.getHttpServer()).get('/unknown').expect(404);
-  });
+  describe('expired url', () => {
+    beforeEach(async () => {
+      process.env.URL_TTL_DAYS = '0';
+      await createApp();
+    });
+    afterEach(async () => {
+      delete process.env.URL_TTL_DAYS;
+      await closeApp();
+    });
 
-  it('/metrics (GET)', async () => {
-    const res = await request(app.getHttpServer())
-      .get('/metrics')
-      .expect(200);
-    expect(res.text).toContain('# HELP');
+    it('should return 404 when url is expired', async () => {
+      const short = await request(app.getHttpServer())
+        .post('/shorten')
+        .send({ url: 'https://example.com' })
+        .expect(201);
+      const code = short.body.shortUrl.split('/').pop();
+      await request(app.getHttpServer()).get(`/${code}`).expect(404);
+    });
   });
 });
