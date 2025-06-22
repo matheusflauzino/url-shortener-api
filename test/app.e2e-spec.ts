@@ -3,12 +3,23 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import mongoose from 'mongoose';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
+
+  beforeAll(() => {
+    if (!process.env.MONGO_URL) {
+      process.env.MONGO_URL = 'mongodb://localhost/url-shortener-test';
+    }
+  });
+
+  afterAll(async () => {
+    await mongoose.disconnect();
+  });
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -17,6 +28,14 @@ describe('AppController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+  });
+
+  afterEach(async () => {
+    const db = mongoose.connection.db;
+    if (db) {
+      await db.dropDatabase();
+    }
+    await app.close();
   });
 
   it('/ (GET)', () => {

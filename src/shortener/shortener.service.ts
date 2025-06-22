@@ -9,20 +9,20 @@ export class ShortenerService {
     private readonly repository: ShortUrlRepository,
   ) {}
 
-  shorten(url: string): string {
+  async shorten(url: string): Promise<string> {
     this.validateUrl(url);
     let code = this.shortCode.generate();
-    while (this.repository.findByCode(code)) {
+    while (await this.repository.findByCode(code)) {
       code = this.shortCode.generate();
     }
-    this.repository.create(url, code);
+    await this.repository.create(url, code);
     return code;
   }
 
-  getUrl(code: string): string | undefined {
-    const short = this.repository.findByCode(code);
+  async getUrl(code: string): Promise<string | undefined> {
+    const short = await this.repository.findByCode(code);
     if (short) {
-      this.repository.incrementAccess(code);
+      await this.repository.incrementAccess(code);
       return short.originalUrl;
     }
     return undefined;
