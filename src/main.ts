@@ -11,7 +11,7 @@ async function bootstrap() {
   app.useLogger(app.get(PinoLogger));
   const metrics = app.get(MetricsService);
   app.use(metrics.middleware());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(PinoLogger)));
   const config = new DocumentBuilder()
     .setTitle('URL Shortener API')
     .setDescription('API to shorten URLs')
