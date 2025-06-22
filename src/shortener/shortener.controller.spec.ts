@@ -1,38 +1,42 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ShortenerController } from './shortener.controller';
 import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
 import { NotFoundException } from '@nestjs/common';
-import { ShortUrl, ShortUrlSchema } from './entities/short-url.schema';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
+
+class FakeShortUrlRepository {
+  private store = new Map<string, any>();
+
+  async create(originalUrl: string, shortCode: string) {
+    const item = { originalUrl, shortCode, createdAt: new Date(), accessCount: 0 };
+    this.store.set(shortCode, item);
+    return item;
+  }
+
+  async findByCode(code: string) {
+    return this.store.get(code);
+  }
+
+  async incrementAccess(code: string) {
+    const item = this.store.get(code);
+    if (item) item.accessCount++;
+  }
+}
 
 describe('ShortenerController', () => {
   let controller: ShortenerController;
-  let mongod: MongoMemoryServer;
-
-  beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
-    process.env.MONGO_URL = mongod.getUri();
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongod.stop();
-  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRoot(process.env.MONGO_URL as string),
-        MongooseModule.forFeature([{ name: ShortUrl.name, schema: ShortUrlSchema }]),
-      ],
       controllers: [ShortenerController],
-      providers: [ShortenerService, ShortCodeService, ShortUrlRepository],
+      providers: [
+        ShortenerService,
+        ShortCodeService,
+        { provide: ShortUrlRepository, useClass: FakeShortUrlRepository },
+      ],
     }).compile();
 
     controller = module.get<ShortenerController>(ShortenerController);

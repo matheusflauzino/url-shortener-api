@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
@@ -11,16 +10,15 @@ import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
-  let mongod: MongoMemoryServer;
 
-  beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
-    process.env.MONGO_URL = mongod.getUri();
+  beforeAll(() => {
+    if (!process.env.MONGO_URL) {
+      process.env.MONGO_URL = 'mongodb://localhost/url-shortener-test';
+    }
   });
 
   afterAll(async () => {
     await mongoose.disconnect();
-    await mongod.stop();
   });
 
   beforeEach(async () => {
@@ -33,6 +31,7 @@ describe('AppController (e2e)', () => {
   });
 
   afterEach(async () => {
+    await mongoose.connection.db.dropDatabase();
     await app.close();
   });
 
