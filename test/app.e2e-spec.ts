@@ -78,4 +78,11 @@ describe('AppController (e2e)', () => {
   it('/unknown code (GET)', () => {
     return request(app.getHttpServer()).get('/unknown').expect(404);
   });
+
+  it('/metrics (GET)', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/metrics')
+      .expect(200);
+    expect(res.text).toContain('# HELP');
+  });
 });
