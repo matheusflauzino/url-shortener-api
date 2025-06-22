@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: URL Shortener API
+  version: "1.0"
+paths:
+  /:
+    get:
+      summary: Hello world endpoint
+      responses:
+        '200':
+          description: Hello World!
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Application health
+  /metrics:
+    get:
+      summary: Prometheus metrics
+      responses:
+        '200':
+          description: Metrics in Prometheus format
+  /shorten:
+    post:
+      summary: Create a shortened URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+              required:
+                - url
+              example:
+                url: https://example.com
+      responses:
+        '201':
+          description: Shortened URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shortUrl:
+                    type: string
+              example:
+                shortUrl: http://localhost:3000/abc123
+        '400':
+          description: Invalid URL
+        '500':
+          description: Internal server error
+  /{code}:
+    get:
+      summary: Redirect using short code
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirection to the original URL
+        '404':
+          description: URL not found
+        '500':
+          description: Internal server error
+  /{code}/qrcode:
+    get:
+      summary: Get QR Code for short URL
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: QR Code image
+          content:
+            image/svg+xml:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: URL not found
+        '500':
+          description: Internal server error

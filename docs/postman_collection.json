@@ -66,6 +66,31 @@
           "body": "{\n  \"statusCode\": 404,\n  \"message\": \"URL not found\"\n}"
         }
       ]
+    },
+    {
+      "name": "Get QR Code",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/abc123/qrcode",
+          "host": ["{{base_url}}"],
+          "path": ["abc123", "qrcode"]
+        }
+      },
+      "response": [
+        {
+          "name": "SVG",
+          "originalRequest": {},
+          "status": "OK",
+          "code": 200
+        },
+        {
+          "name": "Not Found",
+          "originalRequest": {},
+          "status": "Not Found",
+          "code": 404
+        }
+      ]
     }
   ],
   "variable": [
