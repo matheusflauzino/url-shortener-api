@@ -5,6 +5,7 @@ import { ShortenerController } from './shortener.controller';
 import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
+import { CacheService } from '../common/cache.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 class FakeShortUrlRepository {
@@ -36,6 +37,7 @@ describe('ShortenerController', () => {
         ShortenerService,
         ShortCodeService,
         { provide: ShortUrlRepository, useClass: FakeShortUrlRepository },
+        CacheService,
       ],
     }).compile();
 

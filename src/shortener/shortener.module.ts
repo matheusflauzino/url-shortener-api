@@ -6,6 +6,7 @@ import { ShortenerController } from './shortener.controller';
 import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
 import { ShortUrlRepository } from './short-url.repository';
+import { CacheService } from '../common/cache.service';
 
 @Module({
   imports: [
@@ -28,6 +29,11 @@ import { ShortUrlRepository } from './short-url.repository';
     ]),
   ],
   controllers: [ShortenerController],
-  providers: [ShortenerService, ShortCodeService, ShortUrlRepository],
+  providers: [
+    ShortenerService,
+    ShortCodeService,
+    ShortUrlRepository,
+    CacheService,
+  ],
 })
 export class ShortenerModule {}
