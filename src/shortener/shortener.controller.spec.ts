@@ -18,13 +18,13 @@ interface FakeShortUrl {
   accessCount: number;
 }
 
-class FakeShortUrlRepository {
-  private store = new Map<string, FakeShortUrl>();
+  let testingModule: TestingModule;
+    testingModule = await Test.createTestingModule({
 
-  create(originalUrl: string, shortCode: string, expiresAt?: Date) {
-    const item: FakeShortUrl = {
-      originalUrl,
-      shortCode,
+      controller: testingModule.get<ShortenerController>(ShortenerController),
+      repository: testingModule.get<ShortUrlRepository>(ShortUrlRepository),
+    if (testingModule) {
+      await testingModule.close();
       createdAt: new Date(),
       accessCount: 0,
     };
