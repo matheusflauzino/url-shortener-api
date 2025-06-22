@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenerController } from './shortener.controller';
 import { ShortenerService } from './shortener.service';
 import { ShortCodeService } from './short-code.service';
+import { ShortUrlRepository } from './short-url.repository';
 import { NotFoundException } from '@nestjs/common';
 
 describe('ShortenerController', () => {
@@ -12,7 +13,7 @@ describe('ShortenerController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ShortenerController],
-      providers: [ShortenerService, ShortCodeService],
+      providers: [ShortenerService, ShortCodeService, ShortUrlRepository],
     }).compile();
 
     controller = module.get<ShortenerController>(ShortenerController);

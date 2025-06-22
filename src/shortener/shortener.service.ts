@@ -1,24 +1,31 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ShortCodeService } from './short-code.service';
+import { ShortUrlRepository } from './short-url.repository';
 
 @Injectable()
 export class ShortenerService {
-  private urlMap = new Map<string, string>();
-
-  constructor(private readonly shortCode: ShortCodeService) {}
+  constructor(
+    private readonly shortCode: ShortCodeService,
+    private readonly repository: ShortUrlRepository,
+  ) {}
 
   shorten(url: string): string {
     this.validateUrl(url);
     let code = this.shortCode.generate();
-    while (this.urlMap.has(code)) {
+    while (this.repository.findByCode(code)) {
       code = this.shortCode.generate();
     }
-    this.urlMap.set(code, url);
+    this.repository.create(url, code);
     return code;
   }
 
   getUrl(code: string): string | undefined {
-    return this.urlMap.get(code);
+    const short = this.repository.findByCode(code);
+    if (short) {
+      this.repository.incrementAccess(code);
+      return short.originalUrl;
+    }
+    return undefined;
   }
 
   private validateUrl(url: string): void {
