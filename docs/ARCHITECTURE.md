@@ -23,11 +23,14 @@ flowchart TD
 - **Redis** é usado como cache, reduzindo a carga sobre o banco e melhorando o tempo de resposta, além de permitir distribuição da aplicação sem perda de performance.
 - **Prometheus (prom-client)** coleta métricas de requisições HTTP, possibilitando monitoramento e alertas.
 - **Pino/NestJS Logger** gerencia logs estruturados, importantes para depuração e observabilidade.
+- **MySQL** armazena os usuários cadastrados e é acessado via TypeORM.
+- **JWT** protege o endpoint de encurtamento; os usuários obtêm o token através dos endpoints de registro e login.
 
 ## Fluxo Básico
 
-1. O usuário envia `POST /shorten` com uma URL.
-2. A aplicação gera um código curto usando `ShortCodeService` e verifica se já existe no MongoDB.
-3. A URL original é persistida e armazenada em Redis para acesso rápido.
-4. Ao acessar `GET /:code`, a aplicação busca primeiro no cache; em caso de cache miss, consulta o MongoDB e atualiza o cache.
-5. Métricas de cada requisição são registradas e podem ser consultadas em `GET /metrics`.
+1. O usuário se registra em `POST /auth/register` (uma única vez) e obtém um token em `POST /auth/login`.
+2. O usuário envia `POST /shorten` com uma URL autenticado com o token.
+3. A aplicação gera um código curto usando `ShortCodeService` e verifica se já existe no MongoDB.
+4. A URL original é persistida e armazenada em Redis para acesso rápido.
+5. Ao acessar `GET /:code`, a aplicação busca primeiro no cache; em caso de cache miss, consulta o MongoDB e atualiza o cache.
+6. Métricas de cada requisição são registradas e podem ser consultadas em `GET /metrics`.

@@ -5,11 +5,50 @@
   },
   "item": [
     {
-      "name": "Shorten URL",
+      "name": "Register",
       "request": {
         "method": "POST",
         "header": [
           { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"john\",\n  \"password\": \"changeme\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "register"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"john\",\n  \"password\": \"changeme\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Shorten URL",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
         ],
         "body": {
           "mode": "raw",
@@ -94,6 +133,7 @@
     }
   ],
   "variable": [
-    { "key": "base_url", "value": "http://localhost:3000" }
+    { "key": "base_url", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" }
   ]
 }
