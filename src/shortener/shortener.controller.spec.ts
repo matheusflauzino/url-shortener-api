@@ -29,9 +29,10 @@ class FakeShortUrlRepository {
 
 describe('ShortenerController', () => {
   let controller: ShortenerController;
+  let module: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       controllers: [ShortenerController],
       providers: [
         ShortenerService,
@@ -42,6 +43,10 @@ describe('ShortenerController', () => {
     }).compile();
 
     controller = module.get<ShortenerController>(ShortenerController);
+  });
+
+  afterEach(async () => {
+    await module.close();
   });
 
   describe('shorten', () => {

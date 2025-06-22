@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
 
 interface CachedItem {
@@ -7,7 +7,7 @@ interface CachedItem {
 }
 
 @Injectable()
-export class CacheService {
+export class CacheService implements OnModuleDestroy {
   private client?: Redis;
   private readonly store = new Map<string, CachedItem>();
   private readonly ttl: number;
@@ -65,5 +65,13 @@ export class CacheService {
     }
     const expires = Date.now() + ttl * 1000;
     this.store.set(key, { value, expires });
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    if (this.client) {
+      try {
+        await this.client.quit();
+      } catch {}
+    }
   }
 }
